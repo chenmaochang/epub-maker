@@ -14,7 +14,7 @@
     <artifactId>epub-maker</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>epub-maker</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <description>make e-book project for Spring Boot</description>
     <properties>
         <java.version>1.8</java.version>
@@ -38,7 +38,7 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis-plus.version}</version>
@@ -57,7 +57,7 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-typehandlers-jsr310</artifactId>
             <version>1.0.2</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -83,10 +83,12 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>epub-maker</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.4.0</version>
             </plugin>
         </plugins>
     </build>
