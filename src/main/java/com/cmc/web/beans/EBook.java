@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -22,4 +23,9 @@ public class EBook implements Serializable {
     @Builder.Default
     private String publisher = "暂无";
     private String date;
+
+    private EBookChapter cover;
+
+    private List<EBookChapter> chapters;
+
 }

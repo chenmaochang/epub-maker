@@ -6,7 +6,6 @@ import freemarker.template.Template;
 import freemarker.template.Version;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import java.io.*;

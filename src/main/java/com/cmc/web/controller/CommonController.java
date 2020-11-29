@@ -1,5 +1,6 @@
 package com.cmc.web.controller;
 
+import com.cmc.web.beans.EBook;
 import com.cmc.web.common.AjaxResult;
 import com.cmc.web.config.EBookConfig;
 import com.cmc.web.util.EBookGenerator;
@@ -16,7 +17,7 @@ public class CommonController {
     @GetMapping("grab")
     public AjaxResult<String> grabEbook(){
         AjaxResult<String> successResult=new AjaxResult<>();
-        EBookGenerator.generateEBook("众神之宴","void");
+        EBookGenerator.generateEBook(EBook.builder().title("陈茂昌之书").creator("陈茂昌").build());
         successResult.setData("老婆,睡觉没啊");
         return successResult;
     }

@@ -17,4 +17,5 @@ public class EBookImage implements Serializable {
     private String fullName;
     @Builder.Default
     private String suffix=".jpeg";
+    private String downloadUrl;
 }

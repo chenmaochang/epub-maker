@@ -1,20 +1,16 @@
 package com.cmc.web.util;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.UUID;
 import com.cmc.web.beans.EBook;
 import com.cmc.web.beans.EBookChapter;
 import com.cmc.web.beans.EBookFolder;
 import com.cmc.web.beans.EBookImage;
 import com.cmc.web.config.EBookConfig;
-import freemarker.template.Version;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -33,102 +29,82 @@ public class EBookGenerator {
     private EBookGenerator() {
     }
 
-    public static void generateEBook(String name, String author) {
-        EBookFolder folder = generateBookFolder(name, author);
+    public static void generateEBook(EBook eBook) {
+        EBookFolder folder = generateBookFolder(eBook.getTitle(), eBook.getCreator());
         generateBookMineType(folder.getEbookFullPath());
         generateMetaInf(folder.getEbookFullPath());
-        generateOEBPS(folder.getEbookFullPath());
+        generateOEBPS(eBook, folder.getEbookFullPath());
     }
 
-    private static void generateOEBPS(String fullPath) {
+    private static void generateOEBPS(EBook eBook, String fullPath) {
         String oebpsDir = fullPath + File.separator + "OEBPS";
-        FileUtil.mkdir(oebpsDir);
-        FileUtil.mkdir(oebpsDir + File.separator + "Images");
-        FileUtil.mkdir(oebpsDir + File.separator + "Text");
-
-        Map coverDateMap = new HashMap();
-        coverDateMap.put("coverFullName", "cover00383.jpeg");
-        coverDateMap.put("title", "demo啊");
-        FreemarkerUtil.generateFromTemplate("coverPage.ftl", coverDateMap, oebpsDir + File.separator + "Text" + File.separator + "coverPage.xhtml");
-
-
-        Map chapterDataMap = new HashMap();
-        List<EBookChapter> chapters = new LinkedList<>();
-        chapters.add(EBookChapter.builder().title("title1").fullName("chapter1.html").build());
-        chapters.add(EBookChapter.builder().title("title2").fullName("chapter2.html").build());
-        chapters.add(EBookChapter.builder().fullName("chapter3.html").build());
-        chapterDataMap.put("chapters", chapters);
-        FreemarkerUtil.generateFromTemplate("bookIndex.ftl", chapterDataMap, oebpsDir + File.separator + "Text" + File.separator + "bookIndex.xhtml");
-
-
-        EBook ebook = EBook.builder().creator("陈茂昌").date(LocalDate.now().toString()).identifier(UUID.fastUUID().toString()).title("众神的嘿嘿").build();
-        generateOpf(oebpsDir, ebook);
-        generateNcx(oebpsDir);
-
-        generateImages();
-        generateChapterHtml(oebpsDir);
+        String imagesDir = oebpsDir + File.separator + "Images";
+        String textDir = oebpsDir + File.separator + "Text";
+        makeOebpsDir(oebpsDir, imagesDir, textDir);
+        generateBookCoverPage(eBook, textDir);
+        generateBookIndexPage(eBook, oebpsDir);
+        generateOpf(oebpsDir, eBook);
+        generateNcx(oebpsDir, eBook);
+        generateImages(imagesDir, eBook);
+        generateChapterHtml(oebpsDir, eBook);
     }
 
-    private static void generateChapterHtml(String contentPageDir) {
-        List<EBookImage> images=new LinkedList<>();
-        images.add(EBookImage.builder().fullName("cover00383.jpeg").suffix(".jpeg").build());
-        images.add(EBookImage.builder().fullName("image00110.jpeg").suffix(".jpeg").build());
-        images.add(EBookImage.builder().fullName("image00111.jpeg").suffix(".jpeg").build());
-        List<EBookChapter> chapters = new LinkedList<>();
-        chapters.add(EBookChapter.builder().title("title1").fullName("chapter1.html").images(images).build());
-        chapters.add(EBookChapter.builder().title("title2").fullName("chapter2.html").images(images).build());
-        chapters.add(EBookChapter.builder().fullName("chapter3.html").images(images).build());
+    private static void generateBookIndexPage(EBook eBook, String oebpsDir) {
+        Map chapterDataMap = new HashMap();
+        chapterDataMap.put("chapters", eBook.getChapters());
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateBookIndex(), chapterDataMap, oebpsDir + File.separator + "Text" + File.separator + "bookIndex.xhtml");
+    }
+
+    private static void makeOebpsDir(String oebpsDir, String imagesDir, String textDir) {
+        FileUtil.mkdir(oebpsDir);
+        FileUtil.mkdir(imagesDir);
+        FileUtil.mkdir(textDir);
+    }
+
+    private static void generateBookCoverPage(EBook eBook, String textDir) {
+        Map coverDateMap = new HashMap();
+        coverDateMap.put("coverFullName", eBook.getCover().getFullName());
+        coverDateMap.put("title", eBook.getTitle());
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateCoverPage(), coverDateMap, textDir + File.separator + "coverPage.xhtml");
+    }
+
+    private static void generateChapterHtml(String textDir, EBook eBook) {
+        List<EBookChapter> chapters = eBook.getChapters();
         for (int i = 0; i < chapters.size(); i++) {
             EBookChapter chapter = chapters.get(i);
             Map contentDataMap = new HashMap();
             contentDataMap.put("images", chapter.getImages());
             contentDataMap.put("title", chapter.getTitle());
-            FreemarkerUtil.generateFromTemplate("contentPage.ftl", contentDataMap, contentPageDir + File.separator + "Text" + File.separator + ("contentPage_" + i + ".xhtml"));
+            FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateContentPage(), contentDataMap, textDir + File.separator + ("contentPage_" + i + ".xhtml"));
         }
     }
 
-    private static void generateImages() {
+    private static void generateImages(String imagesDir, EBook eBook) {
     }
 
-    private static void generateNcx(String ncxDir) {
-        EBook ebook = EBook.builder().title("众神的嘿嘿").identifier(UUID.fastUUID().toString()).build();
-        List<EBookChapter> chapters = new LinkedList<>();
-        chapters.add(EBookChapter.builder().title("众神的嘿嘿1").fullName("page_001.xhtml").build());
-        chapters.add(EBookChapter.builder().title("众神的嘿嘿2").fullName("page_002.xhtml").build());
-        chapters.add(EBookChapter.builder().title("众神的嘿嘿3").fullName("page_003.xhtml").build());
-        chapters.add(EBookChapter.builder().title("众神的嘿嘿4").fullName("page_004.xhtml").build());
-        chapters.add(EBookChapter.builder().title("众神的嘿嘿5").fullName("page_005.xhtml").build());
-
-
+    private static void generateNcx(String oebpsDir, EBook eBook) {
         Map ncxDataMap = new HashMap();
-        ncxDataMap.put("ebook", ebook);
-        ncxDataMap.put("chapters", chapters);
-        FreemarkerUtil.generateFromTemplate("ncx.ftl", ncxDataMap, ncxDir + File.separator + "toc.ncx");
+        ncxDataMap.put("eBook", eBook);
+        ncxDataMap.put("chapters", eBook.getChapters());
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateNcx(), ncxDataMap, oebpsDir + File.separator + "toc.ncx");
     }
 
-    private static void generateOpf(String opfDir, EBook ebook) {
+    private static void generateOpf(String oebpsDir, EBook ebook) {
         Map dataMap = new LinkedHashMap();
-
-        List<String> htmlPages = new LinkedList<>();
-        htmlPages.add("page_001.xhtml");
-        htmlPages.add("page_002.xhtml");
-        htmlPages.add("page_003.xhtml");
-        htmlPages.add("page_004.xhtml");
-
-        List<EBookImage> images = new LinkedList<>();
-        images.add(new EBookImage("demoImage001", ".jpeg"));
-        images.add(new EBookImage("demoImage002", ".jpeg"));
-        images.add(new EBookImage("demoImage003", ".jpeg"));
-        images.add(new EBookImage("demoImage004", ".jpeg"));
-
-
         dataMap.put("ebook", ebook);
-        dataMap.put("htmlPages", htmlPages);
-        dataMap.put("images", images);
-        dataMap.put("cover", EBookChapter.builder().fullName("coverPage.html").build());
-        FreemarkerUtil.generateFromTemplate("opf.ftl", dataMap, opfDir + File.separator + "content.opf");
+        dataMap.put("htmlPages", ebook.getChapters());
+        dataMap.put("images", collectImageFromChapters(ebook.getChapters()));
+        dataMap.put("cover", ebook.getCover());
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateOpf(), dataMap, oebpsDir + File.separator + "content.opf");
+    }
 
-
+    private static List<EBookImage> collectImageFromChapters(List<EBookChapter> chapters) {
+        List<EBookImage> images = new LinkedList<>();
+        for (int i = 0; i < chapters.size(); i++) {
+            EBookChapter chapter = chapters.get(i);
+            images.addAll(chapter.getImages());
+        }
+        return images;
     }
 
     private static void generateMetaInf(String fullPath) {
@@ -138,15 +114,14 @@ public class EBookGenerator {
     }
 
     private static void generateContainer(String metaInfDir) {
-        FreemarkerUtil.generateFromTemplate("container.ftl", null, metaInfDir + File.separator + "container.xml");
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateContainer(), null, metaInfDir + File.separator + "container.xml");
     }
 
     private static void generateBookMineType(String mimetypeDir) {
-        FreemarkerUtil.generateFromTemplate("mimetype.ftl", null, mimetypeDir + File.separator + "/mimetype");
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateMimetype(), null, mimetypeDir + File.separator + "/mimetype");
     }
 
     private static EBookFolder generateBookFolder(String name, String author) {
-        EBookFolder folder = new EBookFolder(eBookGenerator.eBookConfig.getPath() + File.separator, name + "-" + author);
-        return folder;
+        return new EBookFolder(eBookGenerator.eBookConfig.getPath() + File.separator, name + "-" + author);
     }
 }
