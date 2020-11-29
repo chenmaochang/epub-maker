@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,16 +29,21 @@ public class EBookGenerator {
     }
 
     public static void generateEBook(String name, String author) {
-        EBookFolder folder = generateBookFolder(eBookGenerator.eBookConfig.getPath(), name, author);
-        generateBookMineType(name + "-" + author);
+        EBookFolder folder = generateBookFolder(name, author);
+        generateBookMineType(folder.getEbookFullPath());
+        generateMetaInf(folder.getEbookFullPath());
+    }
+
+    private static void generateMetaInf(String fullPath) {
+
     }
 
     private static void generateBookMineType(String bookName) {
         FreemarkerUtil.generateFromTemplate("mimetype.ftl", null, bookName + "/mimetype");
     }
 
-    private static EBookFolder generateBookFolder(String path, String name, String author) {
-        EBookFolder folder = new EBookFolder(path + "/", name + "-" + author);
+    private static EBookFolder generateBookFolder(String name, String author) {
+        EBookFolder folder = new EBookFolder(eBookGenerator.eBookConfig.getPath() + File.separator, name + "-" + author);
         return folder;
     }
 }

@@ -10,4 +10,8 @@ import lombok.NoArgsConstructor;
 public class EBookFolder {
     private String path;
     private String name;
+
+    public String getEbookFullPath() {
+        return this.path + this.name;
+    }
 }
