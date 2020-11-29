@@ -4,11 +4,16 @@ import com.cmc.web.beans.EBookFolder;
 import com.cmc.web.config.EBookConfig;
 import freemarker.template.Version;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 
+@Component
 public class EBookGenerator {
-    @Autowired
+    @Resource
     private EBookConfig eBookConfig;
 
     private static EBookGenerator eBookGenerator;
@@ -24,10 +29,11 @@ public class EBookGenerator {
 
     public static void generateEBook(String name, String author) {
         EBookFolder folder = generateBookFolder(eBookGenerator.eBookConfig.getPath(), name, author);
-        generateBookMineType();
+        generateBookMineType(name + "-" + author);
     }
 
-    private static void generateBookMineType() {
+    private static void generateBookMineType(String bookName) {
+        FreemarkerUtil.generateFromTemplate("mimetype.ftl", null, bookName + "/mimetype");
     }
 
     private static EBookFolder generateBookFolder(String path, String name, String author) {
