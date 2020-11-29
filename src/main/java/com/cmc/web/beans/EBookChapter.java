@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -16,4 +17,5 @@ import java.io.Serializable;
 public class EBookChapter implements Serializable {
     private String fullName;
     private String title;
+    private List<EBookImage> images;
 }

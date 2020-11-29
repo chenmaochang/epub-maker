@@ -12,7 +12,7 @@
     <meta name="primary-writing-mode" content="horizontal-lr"/>
   </metadata>
 <manifest>
-<item id="bookCover" media-type="application/xhtml+xml" href="Text/cover_page.xhtml"/>
+<item id="bookCover" media-type="application/xhtml+xml" href="Text/coverPage.xhtml"/>
 <#list htmlPages as page>
 <item id="${page}" media-type="application/xhtml+xml" href="Text/${page}"/>
 </#list>
@@ -31,7 +31,7 @@
 <tours>
 </tours>
 <guide>
-<reference type="toc" title="Table of Contents" href="Text/part0003.xhtml"/>
-<reference href="Text/cover_page.xhtml" type="cover"/>
+<reference type="toc" title="Table of Contents" href="Text/bookIndex.xhtml"/>
+<reference href="Text/coverPage.xhtml" type="cover"/>
 </guide>
 </package>
