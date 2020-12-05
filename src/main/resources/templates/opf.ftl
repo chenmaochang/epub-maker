@@ -5,8 +5,8 @@
     <dc:language>${ebook.language!'zh'}</dc:language>
     <dc:identifier id="uid">${ebook.identifier}</dc:identifier>
     <dc:creator>${ebook.creator}</dc:creator>
-    <dc:publisher>${ebook.publisher!'暂无出版社'}</</dc:publisher>
-    <dc:date opf:event="publication">${ebook.date}</</dc:date>
+    <dc:publisher>${ebook.publisher!'暂无出版社'}</dc:publisher>
+    <dc:date opf:event="publication">${ebook.date}</dc:date>
     <meta name="cover" content="${cover.fullName}"/>
     <meta name="output encoding" content="utf-8"/>
     <meta name="primary-writing-mode" content="horizontal-lr"/>
@@ -14,10 +14,10 @@
 <manifest>
 <item id="bookCover" media-type="application/xhtml+xml" href="Text/coverPage.xhtml"/>
 <#list htmlPages as page>
-<item id="${page}" media-type="application/xhtml+xml" href="Text/${page}"/>
+<item id="${page.fullName}" media-type="application/xhtml+xml" href="Text/${page.fullName}"/>
 </#list>
 <#list images as image>
-<item id="${image.fullName}" media-type="application/xhtml+xml" href="Text/${image.suffix}"/>
+<item id="${image.fullName}" media-type="image/jpeg" href="Text/${image.fullName}"/>
 </#list>
 <item id="${cover.fullName}" media-type="image/jpeg" href="Images/${cover.fullName}"/>
 <item id="ncx" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
@@ -25,7 +25,7 @@
 <spine toc="ncx">
 <itemref idref="bookCover" linear="yes"/>
 <#list htmlPages as page>
-<itemref idref="${page}"/>
+<itemref idref="${page.fullName}"/>
 </#list>
 </spine>
 <tours>

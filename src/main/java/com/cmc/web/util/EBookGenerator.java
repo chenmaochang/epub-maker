@@ -1,6 +1,7 @@
 package com.cmc.web.util;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpUtil;
 import com.cmc.web.beans.EBook;
 import com.cmc.web.beans.EBookChapter;
 import com.cmc.web.beans.EBookFolder;
@@ -41,18 +42,17 @@ public class EBookGenerator {
         String imagesDir = oebpsDir + File.separator + "Images";
         String textDir = oebpsDir + File.separator + "Text";
         makeOebpsDir(oebpsDir, imagesDir, textDir);
-        generateBookCoverPage(eBook, textDir);
-        generateBookIndexPage(eBook, oebpsDir);
-        generateOpf(oebpsDir, eBook);
-        generateNcx(oebpsDir, eBook);
-        generateImages(imagesDir, eBook);
-        generateChapterHtml(oebpsDir, eBook);
+        generateBookCoverPage(eBook, textDir, imagesDir);
+        generateChapterHtml(eBook, textDir, imagesDir);
+        generateBookIndexPage(eBook, textDir);
+        generateOpf(eBook, oebpsDir);
+        generateNcx(eBook, oebpsDir);
     }
 
     private static void generateBookIndexPage(EBook eBook, String oebpsDir) {
         Map chapterDataMap = new HashMap();
         chapterDataMap.put("chapters", eBook.getChapters());
-        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateBookIndex(), chapterDataMap, oebpsDir + File.separator + "Text" + File.separator + "bookIndex.xhtml");
+        FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateBookIndex(), chapterDataMap, oebpsDir + File.separator + File.separator + "bookIndex.xhtml");
     }
 
     private static void makeOebpsDir(String oebpsDir, String imagesDir, String textDir) {
@@ -61,35 +61,37 @@ public class EBookGenerator {
         FileUtil.mkdir(textDir);
     }
 
-    private static void generateBookCoverPage(EBook eBook, String textDir) {
+    private static void generateBookCoverPage(EBook eBook, String textDir, String imageDir) {
         Map coverDateMap = new HashMap();
+        downloadChapterImages(imageDir, eBook.getCover());
+        eBook.getCover().setFullName(eBook.getCover().getImages().get(0).getFullName());
         coverDateMap.put("coverFullName", eBook.getCover().getFullName());
         coverDateMap.put("title", eBook.getTitle());
         FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateCoverPage(), coverDateMap, textDir + File.separator + "coverPage.xhtml");
     }
 
-    private static void generateChapterHtml(String textDir, EBook eBook) {
+    private static void generateChapterHtml(EBook eBook, String textDir, String imageDir) {
+        downloadChaptersImages(imageDir, eBook.getChapters());
         List<EBookChapter> chapters = eBook.getChapters();
         for (int i = 0; i < chapters.size(); i++) {
             EBookChapter chapter = chapters.get(i);
             Map contentDataMap = new HashMap();
             contentDataMap.put("images", chapter.getImages());
             contentDataMap.put("title", chapter.getTitle());
-            FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateContentPage(), contentDataMap, textDir + File.separator + ("contentPage_" + i + ".xhtml"));
+            String fullName = "contentPage_" + i + ".xhtml";
+            chapter.setFullName(fullName);
+            FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateContentPage(), contentDataMap, textDir + File.separator + fullName);
         }
     }
 
-    private static void generateImages(String imagesDir, EBook eBook) {
-    }
-
-    private static void generateNcx(String oebpsDir, EBook eBook) {
+    private static void generateNcx(EBook eBook, String oebpsDir) {
         Map ncxDataMap = new HashMap();
         ncxDataMap.put("eBook", eBook);
         ncxDataMap.put("chapters", eBook.getChapters());
         FreemarkerUtil.generateFromTemplate(eBookGenerator.eBookConfig.getTemplateNcx(), ncxDataMap, oebpsDir + File.separator + "toc.ncx");
     }
 
-    private static void generateOpf(String oebpsDir, EBook ebook) {
+    private static void generateOpf(EBook ebook, String oebpsDir) {
         Map dataMap = new LinkedHashMap();
         dataMap.put("ebook", ebook);
         dataMap.put("htmlPages", ebook.getChapters());
@@ -123,5 +125,28 @@ public class EBookGenerator {
 
     private static EBookFolder generateBookFolder(String name, String author) {
         return new EBookFolder(eBookGenerator.eBookConfig.getPath() + File.separator, name + "-" + author);
+    }
+
+    private static void downloadChaptersImages(String path, List<EBookChapter> chapters) {
+        for (int i = 0; i < chapters.size(); i++) {
+            EBookChapter chapter = chapters.get(i);
+            downloadChapterImages(path, chapter);
+        }
+    }
+
+    private static void downloadChapterImages(String path, EBookChapter chapter) {
+        List<EBookImage> images = chapter.getImages();
+        for (int j = 0; j < images.size(); j++) {
+            EBookImage image = images.get(j);
+            String suffix = getFileSuffixFromUrl(image.getDownloadUrl());
+            image.setFullName(chapter.getTitle() + "_" + j + suffix);
+            image.setSuffix(suffix);
+            HttpUtil.downloadFile(image.getDownloadUrl(), FileUtil.touch(path + File.separator + image.getFullName()));
+        }
+    }
+
+
+    private static String getFileSuffixFromUrl(String url) {
+        return url.substring(url.lastIndexOf("."), url.length());
     }
 }
