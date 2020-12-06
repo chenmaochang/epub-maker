@@ -6,7 +6,7 @@ import freemarker.template.Template;
 import freemarker.template.Version;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
 import java.util.Map;
@@ -17,7 +17,8 @@ public class FreemarkerUtil {
     @SneakyThrows
     public static void generateFromTemplate(String templateName, Map dataMap, String outputFileName) {
         Configuration configuration = new Configuration(new Version(2, 3, 30));
-        configuration.setDirectoryForTemplateLoading(ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates"));
+        ClassPathResource classPathResource = new ClassPathResource("templates/");
+        configuration.setDirectoryForTemplateLoading(classPathResource.getFile());
         configuration.setDefaultEncoding("UTF-8");
         Template template = configuration.getTemplate(templateName);
         File file = FileUtil.touch(outputFileName);
