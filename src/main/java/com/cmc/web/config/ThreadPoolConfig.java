@@ -73,6 +73,7 @@ public class ThreadPoolConfig implements AsyncConfigurer {
         public void handleUncaughtException(Throwable throwable, Method method, Object... obj) {
             log.error("ExceptionMessage:{}", throwable.getMessage());
             log.error("MethodName:{}", method.getName());
+            log.error("throwable:{}",throwable);
             for (Object param : obj) {
                 log.error("Parameter:{}", param);
             }
