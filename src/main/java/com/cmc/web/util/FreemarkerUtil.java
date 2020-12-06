@@ -1,6 +1,7 @@
 package com.cmc.web.util;
 
 import cn.hutool.core.io.FileUtil;
+import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.Version;
@@ -17,8 +18,8 @@ public class FreemarkerUtil {
     @SneakyThrows
     public static void generateFromTemplate(String templateName, Map dataMap, String outputFileName) {
         Configuration configuration = new Configuration(new Version(2, 3, 30));
-        ClassPathResource classPathResource = new ClassPathResource("templates/");
-        configuration.setDirectoryForTemplateLoading(classPathResource.getFile());
+        configuration.setClassForTemplateLoading(FreemarkerUtil.class, "/templates");
+        configuration.setTemplateLoader(new ClassTemplateLoader(FreemarkerUtil.class, "/templates"));
         configuration.setDefaultEncoding("UTF-8");
         Template template = configuration.getTemplate(templateName);
         File file = FileUtil.touch(outputFileName);
