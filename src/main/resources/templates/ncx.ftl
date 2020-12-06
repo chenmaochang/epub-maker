@@ -13,7 +13,7 @@
     <#list chapters as data>
     <navPoint id="np_${data_index+1}" playOrder="${data_index+1}">
         <navLabel>
-            <text>${data.title}</text>
+            <text>${data.chineseName}</text>
         </navLabel>
         <content src="Text/${data.fullName}"/>
     </navPoint>

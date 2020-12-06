@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class EBookChapter implements Serializable {
     private String fullName;
+    private String chineseName;
     private String title;
     private List<EBookImage> images;
 }

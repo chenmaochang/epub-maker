@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class EBook implements Serializable {
     private String title;
+    private String chineseName;
     @Builder.Default
     private String language = "zh";
     private String identifier;
