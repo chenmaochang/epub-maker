@@ -2,21 +2,25 @@ package com.cmc.web.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
-import cn.hutool.http.Header;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.cmc.web.beans.EBook;
 import com.cmc.web.beans.EBookChapter;
 import com.cmc.web.beans.EBookFolder;
 import com.cmc.web.beans.EBookImage;
 import com.cmc.web.config.EBookConfig;
+import com.cmc.web.repository.EBookChapterRepository;
+import com.cmc.web.repository.EBookFolderRepository;
+import com.cmc.web.repository.EBookImageRepository;
+import com.cmc.web.repository.EBookRepository;
 import com.cmc.web.util.FreemarkerUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.awt.font.ImageGraphicAttribute;
 import java.io.File;
 import java.util.*;
 
@@ -25,14 +29,54 @@ import java.util.*;
 public class EBookGenerator {
     @Resource
     private EBookConfig eBookConfig;
+    @Resource
+    EBookFolderRepository eBookFolderRepository;
+    @Resource
+    EBookRepository eBookRepository;
+    @Resource
+    EBookImageRepository eBookImageRepository;
+    @Resource
+    EBookChapterRepository eBookChapterRepository;
 
+    @SneakyThrows
     @Async
     public void generateEBook(EBook eBook) {
         EBookFolder folder = generateBookFolder(eBook.getChineseName(), eBook.getCreator());
-        generateBookMineType(folder.getEbookFullPath());
-        generateMetaInf(folder.getEbookFullPath());
-        generateOEBPS(eBook, folder.getEbookFullPath());
-        ZipUtil.zip(folder.getEbookFullPath() + "/", folder.getEbookFullPath() + ".epub", false);
+        generateBookMineType(folder.calculateEbookFullPath());
+        generateMetaInf(folder.calculateEbookFullPath());
+        generateOEBPS(eBook, folder.calculateEbookFullPath());
+        zipEpub(folder);
+        persistent2DB(eBook, true);
+    }
+
+    @SneakyThrows
+    private void persistent2DB(EBook eBook, boolean forceUpdate) {
+        Example bookExample = Example.of(eBook, ExampleMatcher.matching().withIgnorePaths("identifier", "date"));
+        if (forceUpdate || !eBookRepository.exists(bookExample)) {
+            deleteOldBook(bookExample);
+            eBookRepository.save(eBook);
+        }
+    }
+
+    private void deleteOldBook(Example bookExample) {
+        List<EBook> allBooksMatch = eBookRepository.findAll(bookExample);
+        if (allBooksMatch.size() > 0) {
+            EBook book2Delete = allBooksMatch.get(0);
+            book2Delete.getChapters().parallelStream().forEach(chapter -> {
+                eBookImageRepository.deleteAll(chapter.getImages());
+            });
+            eBookImageRepository.deleteAll(book2Delete.getCover().getImages());
+            eBookChapterRepository.delete(book2Delete.getCover());
+            eBookChapterRepository.deleteAll(book2Delete.getChapters());
+            eBookRepository.delete(book2Delete);
+        }
+    }
+
+    private void zipEpub(EBookFolder folder) {
+        String epubFile = folder.calculateEbookFullPath() + ".epub";
+        if (!FileUtil.exist(epubFile)) {
+            ZipUtil.zip(folder.calculateEbookFullPath() + "/", epubFile, false);
+        }
     }
 
     private void generateOEBPS(EBook eBook, String fullPath) {
@@ -122,7 +166,9 @@ public class EBookGenerator {
     }
 
     private EBookFolder generateBookFolder(String name, String author) {
-        return new EBookFolder(eBookConfig.getPath() + "/", name + "-" + author);
+        EBookFolder folder = new EBookFolder(null, eBookConfig.getPath() + "/", name + "-" + author);
+        eBookFolderRepository.save(eBookFolderRepository.findOne(Example.of(folder)).orElseGet(() -> folder));
+        return folder;
     }
 
     private void downloadChaptersImages(String path, List<EBookChapter> chapters) {

@@ -8,12 +8,12 @@ import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -30,6 +30,11 @@ public class CommonController {
     EBookGenerator eBookGenerator;
     @Resource
     EBookConfig eBookConfig;
+
+    @GetMapping("index")
+    public ModelAndView indexHtml(){
+        return new ModelAndView("index");
+    }
 
     @GetMapping("grab")
     public AjaxResult<String> grabEbook(@RequestParam("url") String url, @RequestParam(name = "startStr", required = true) String startStr, @RequestParam(name = "endStr", required = true) String endStr) {
