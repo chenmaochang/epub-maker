@@ -88,6 +88,13 @@
             <artifactId>jsoup</artifactId>
             <version>1.13.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit -->
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+            <version>2.45.0</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>epub-maker</finalName>
