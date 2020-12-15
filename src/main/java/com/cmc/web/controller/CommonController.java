@@ -6,6 +6,7 @@ import com.cmc.web.common.AjaxResult;
 import com.cmc.web.config.EBookConfig;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
+import com.cmc.web.util.HtmlUnitUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,14 @@ public class CommonController {
     @Resource
     EBookConfig eBookConfig;
 
+    @GetMapping("test")
+    public String test() {
+        HtmlUnitUtil.loginWenShuShu();
+        return "123";
+    }
+
     @GetMapping("index")
-    public ModelAndView indexHtml(){
+    public ModelAndView indexHtml() {
         return new ModelAndView("index");
     }
 
