@@ -48,9 +48,9 @@ public class HtmlUnitUtil {
         TimeUnit.SECONDS.sleep(1);
         ScriptResult result = submitPage.executeJavaScript("window.localStorage.getItem('login_token');");
         RedisUtil.set(String.format(TOKEN_KEY, account), result.getJavaScriptResult().toString());
-        CookieManager cookieManager = webClient.getCookieManager();
-        Set<Cookie> cookies = cookieManager.getCookies();
-        RedisUtil.set(String.format(COOKIE_KEY, account), JSON.toJSONString(cookies));
+//        CookieManager cookieManager = webClient.getCookieManager();
+//        Set<Cookie> cookies = cookieManager.getCookies();
+//        RedisUtil.set(String.format(COOKIE_KEY, account), JSON.toJSONString(cookies));
     }
 
     public static Set<Cookie> getWenShuShuCookieFromRedis(String account) {
