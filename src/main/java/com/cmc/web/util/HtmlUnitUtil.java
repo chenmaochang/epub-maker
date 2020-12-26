@@ -27,7 +27,6 @@ public class HtmlUnitUtil {
         WebClient webClient = new WebClient();
         webClient.setJavaScriptTimeout(10000);
         HtmlPage page = webClient.getPage("https://www.wenshushu.cn/signin");
-        //TimeUnit.SECONDS.sleep(3);
         webClient.waitForBackgroundJavaScript(3000);
         List<DomElement> changeMode = page.getByXPath("//*[@id=\"page_content\"]/div[1]/div[1]/ul/li[2]");
         DomElement changeModeButton = changeMode.get(0);
@@ -50,11 +49,6 @@ public class HtmlUnitUtil {
         webClient.waitForBackgroundJavaScript(1000);
         ScriptResult tokenResult = submitPage.executeJavaScript("window.localStorage.getItem('login_token');");
         RedisUtil.set(String.format(TOKEN_KEY, account), tokenResult.getJavaScriptResult().toString());
-//        ScriptResult tipTimeResult = submitPage.executeJavaScript("window.localStorage.getItem('usertask_tips_time');");
-//        RedisUtil.set(String.format(TIP_TIME_KEY, account), tipTimeResult.getJavaScriptResult().toString());
-//        CookieManager cookieManager = webClient.getCookieManager();
-//        Set<Cookie> cookies = cookieManager.getCookies();
-//        RedisUtil.set(String.format(COOKIE_KEY, account), JSON.toJSONString(cookies));
     }
 
     @SneakyThrows
