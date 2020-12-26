@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.cmc.web.beans.EBook;
 import com.cmc.web.common.AjaxResult;
+import com.cmc.web.config.CloudStorageConfig;
 import com.cmc.web.config.EBookConfig;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
@@ -36,11 +37,13 @@ public class CommonController {
     EBookGenerator eBookGenerator;
     @Resource
     EBookConfig eBookConfig;
+    @Resource
+    CloudStorageConfig cloudStorageConfig;
 
     @GetMapping("test")
     public String test() {
-        HtmlUnitUtil.loginWenShuShu();
-        Set<Cookie> redisCookies= JSON.parseObject(RedisUtil.get("wenshushuCookie:chenmaochang").toString(),new TypeReference<Set<Cookie>>(){});
+        HtmlUnitUtil.loginWenShuShu(cloudStorageConfig.getAccount(),cloudStorageConfig.getPassword());
+        //HtmlUnitUtil.loginWenShuShuUseCookie(cloudStorageConfig.getAccount(),"");
         return "123";
     }
 
