@@ -1,26 +1,20 @@
 package com.cmc.web.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
-import com.gargoylesoftware.htmlunit.CookieManager;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.ScriptResult;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.*;
-import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import javax.sound.midi.Soundbank;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class HtmlUnitUtil {
     private static final String TOKEN_KEY = "wenshushuToken:%s";
-    private static final String TIP_TIME_KEY = "wenshushuTipTime:%s";
 
     @SneakyThrows
     public static void loginWenShuShu(String account, String password) {
@@ -73,7 +67,6 @@ public class HtmlUnitUtil {
             DomElement searchButton=drivePage.getFirstByXPath("//*[@id=\"page_content\"]/div/div/div/div[2]/div[2]/div/div/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span/i[2]");
             searchButton.click();
             webClient.waitForBackgroundJavaScript(2000);
-            //System.out.println(drivePage.asXml());
             DomElement checkButton=drivePage.getFirstByXPath("//*[@id=\"page_content\"]/div/div/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[1]/div/div/div/div[1]/div/div[1]/span/i");
             checkButton.focus();
             webClient.waitForBackgroundJavaScript(200);
@@ -81,16 +74,11 @@ public class HtmlUnitUtil {
             webClient.waitForBackgroundJavaScript(500);
             drivePage.getFirstByXPath("//*[@id=\"page_content\"]/div/div/div/div[2]/div[2]/div/div/div/div[1]/div/div[1]/div[1]/div/div/div[1]");
             webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-
         }
     }
 
     private static String getWenShuShuTokenFromRedis(String account) {
         return RedisUtil.get(String.format(TOKEN_KEY, account)).toString();
-    }
-
-    private static String getWenShuShuTipTimeFromRedis(String account) {
-        return RedisUtil.get(String.format(TIP_TIME_KEY, account)).toString();
     }
 
 
