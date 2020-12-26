@@ -1,8 +1,6 @@
 package com.cmc.web.controller;
 
 import cn.hutool.http.HttpStatus;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.cmc.web.beans.EBook;
 import com.cmc.web.common.AjaxResult;
 import com.cmc.web.config.CloudStorageConfig;
@@ -10,8 +8,6 @@ import com.cmc.web.config.EBookConfig;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
 import com.cmc.web.util.HtmlUnitUtil;
-import com.cmc.web.util.RedisUtil;
-import com.gargoylesoftware.htmlunit.util.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +21,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("common")
