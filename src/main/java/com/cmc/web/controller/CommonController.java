@@ -64,6 +64,16 @@ public class CommonController {
         });
         System.out.println(reulst.getHeaders());
         List<String> cookies=reulst.getHeaders().get("Set-Cookie");*/
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> reulst=restTemplate.exchange("https://pan.bilnn.com/api/v3/user/session", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {
+        });
+        System.out.println(reulst.getHeaders());
+        List<String> cookies=reulst.getHeaders().get("Set-Cookie");
+
+
         return "123";
     }
 
