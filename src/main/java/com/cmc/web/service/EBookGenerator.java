@@ -15,6 +15,7 @@ import com.cmc.web.repository.EBookRepository;
 import com.cmc.web.util.FreemarkerUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.scheduling.annotation.Async;
@@ -46,18 +47,16 @@ public class EBookGenerator {
         generateMetaInf(folder.calculateEbookFullPath());
         generateOEBPS(eBook, folder.calculateEbookFullPath());
         zipEpub(folder);
-        persistent2DB(eBook, true);
+        persistent2DB(folder, eBook);
     }
 
     @SneakyThrows
-    private void persistent2DB(EBook eBook, boolean forceUpdate) {
-        Example bookExample = Example.of(eBook, ExampleMatcher.matching().withIgnorePaths("identifier", "date"));
-        if (forceUpdate || !eBookRepository.exists(bookExample)) {
-            deleteOldBook(bookExample);
-            eBookRepository.save(eBook);
-        }
+    private void persistent2DB(EBookFolder folder, EBook eBook) {
+        folder.setEBook(eBook);
+        eBookFolderRepository.save(eBookFolderRepository.findOne(Example.of(folder, ExampleMatcher.matching().withIgnorePaths("ebook"))).orElseGet(() -> folder));
     }
 
+    @Deprecated
     private void deleteOldBook(Example bookExample) {
         List<EBook> allBooksMatch = eBookRepository.findAll(bookExample);
         if (allBooksMatch.size() > 0) {
@@ -166,8 +165,7 @@ public class EBookGenerator {
     }
 
     private EBookFolder generateBookFolder(String name, String author) {
-        EBookFolder folder = new EBookFolder(null, eBookConfig.getPath() + "/", name + "-" + author);
-        eBookFolderRepository.save(eBookFolderRepository.findOne(Example.of(folder)).orElseGet(() -> folder));
+        EBookFolder folder = new EBookFolder(null, eBookConfig.getPath() + "/", name + "-" + author, null);
         return folder;
     }
 
@@ -186,7 +184,12 @@ public class EBookGenerator {
             image.setFullName(chapter.getTitle() + "_" + j + suffix);
             image.setSuffix(suffix);
             try {
-                HttpUtil.downloadFile(image.getDownloadUrl(), FileUtil.touch(path + File.separator + image.getFullName()), 8000);
+                String filePath = path + File.separator + image.getFullName();
+                if (FileUtil.exist(filePath)) {
+                    return;
+                }
+                HttpUtil.downloadFile(image.getDownloadUrl(), FileUtil.touch(filePath), 8000);
+                Thumbnails.of(filePath).outputQuality(0.5F).keepAspectRatio(true).toFile(filePath);
             } catch (Exception e) {
                 log.error("下载出错-{},{},{}", path, image.getDownloadUrl(), j, e);
             }
