@@ -7,14 +7,10 @@ import com.cmc.web.config.CloudStorageConfig;
 import com.cmc.web.config.EBookConfig;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
-import com.cmc.web.util.HtmlUnitUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +38,7 @@ public class CommonController {
     @Resource
     private RestTemplate restTemplate;
 
+    @SneakyThrows
     @GetMapping("test")
     public String test() {
         //upload
@@ -56,23 +53,39 @@ public class CommonController {
         ResponseEntity<String> reulst=restTemplate.exchange("https://pan.bilnn.com/api/v3/file/upload?chunk=0&chunks=1", HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {
         });*/
 
-        //
+        //login
         /*HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"userName\":\"chenmaochang@qq.com\",\"Password\":\"chenmaochang\",\"captchaCode\":\"\"}", headers);
-        ResponseEntity<String> reulst=restTemplate.exchange("https://pan.bilnn.com/api/v3/user/session", HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {
+        ResponseEntity<String> reulst = restTemplate.exchange("https://pan.bilnn.com/api/v3/user/session", HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {
         });
         System.out.println(reulst.getHeaders());
-        List<String> cookies=reulst.getHeaders().get("Set-Cookie");*/
+        List<String> cookies = reulst.getHeaders().get("Set-Cookie");
+        RedisUtil.set("bilingCookie", JSON.toJSONString(cookies));
+        List<String> cookies2 = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });*/
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        //search
+        /*HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });
+        String cookieStr=cookies.stream().collect(Collectors.joining(";"));
+        headers.add("Cookie",cookieStr);
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-        ResponseEntity<String> reulst=restTemplate.exchange("https://pan.bilnn.com/api/v3/user/session", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {
+        ResponseEntity<String> reulst = restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/search/keywords%2FMuMu"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {
         });
-        System.out.println(reulst.getHeaders());
-        List<String> cookies=reulst.getHeaders().get("Set-Cookie");
+        System.out.println(reulst.getBody());*/
 
+        //download
+        /*HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });
+        String cookieStr=cookies.stream().collect(Collectors.joining(";"));
+        headers.add("Cookie",cookieStr);
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> reulst = restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/download/YqQDdcv"), HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<String>() {
+        });
+        System.out.println(reulst.getBody());*/
 
         return "123";
     }
