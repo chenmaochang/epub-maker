@@ -142,7 +142,7 @@ public class ShouManHuaService {
 
     @SneakyThrows
     public String getTheRealPicUrl(String beforeUrl, String bookMid, String bookMif, String bookIndexUrl) {
-        if (beforeUrl.substring(0, 1).equals("/")) {
+        if (beforeUrl.startsWith("/")) {
             return "http://img001.xznj120.com/" + beforeUrl;
         }
         if (!bookMif.equals("2")) {

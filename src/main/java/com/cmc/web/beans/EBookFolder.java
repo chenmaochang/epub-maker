@@ -3,10 +3,7 @@ package com.cmc.web.beans;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.*;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +17,8 @@ public class EBookFolder {
     private String path;
     @Property
     private String name;
+    @Relationship(type = "INSIDE", direction = Relationship.Direction.INCOMING)
+    private EBook eBook;
 
     public String calculateEbookFullPath() {
         return this.path + this.name;

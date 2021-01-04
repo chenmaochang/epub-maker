@@ -7,7 +7,7 @@ import com.cmc.web.config.CloudStorageConfig;
 import com.cmc.web.config.EBookConfig;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
-import com.cmc.web.util.HtmlUnitUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -34,11 +35,58 @@ public class CommonController {
     EBookConfig eBookConfig;
     @Resource
     CloudStorageConfig cloudStorageConfig;
+    @Resource
+    private RestTemplate restTemplate;
 
+    @SneakyThrows
     @GetMapping("test")
     public String test() {
-        HtmlUnitUtil.loginWenShuShu(cloudStorageConfig.getAccount(),cloudStorageConfig.getPassword());
-        //HtmlUnitUtil.loginWenShuShuUseCookie(cloudStorageConfig.getAccount(),"");
+        //upload
+        /*HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.add("Cookie", "token=bFI_Ll713vX1AkwbAM6Qpzb2CctTfImHGxx8TUMqZSovm6fx14N2zSR6fg2BmF9_;cloudreve-session=MTYwOTIzMTMzNHxOd3dBTkVsSlF6TktUVE5LVUZwRFUwTXlTVFJDUVZGTFIweE5XalExVlZVMlNqUlNURnBYTlZVeVJUZFFXbGswU1RSSU5FMHlWRkU9fJ-E4jn-O7BHLuge0CyfYj072U9Z_u3vlilHfuXoLCh8");
+        headers.add("Referer","https://pan.bilnn.com/");
+        headers.add("Content-Length","3376680");
+        headers.add("x-path","%2F");
+        headers.add("x-filename","newxtgs.exe");
+        HttpEntity<FileSystemResource> requestEntity = new HttpEntity<>(new FileSystemResource("D:/123.cab"), headers);
+        ResponseEntity<String> reulst=restTemplate.exchange("https://pan.bilnn.com/api/v3/file/upload?chunk=0&chunks=1", HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {
+        });*/
+
+        //login
+        /*HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"userName\":\"chenmaochang@qq.com\",\"Password\":\"chenmaochang\",\"captchaCode\":\"\"}", headers);
+        ResponseEntity<String> reulst = restTemplate.exchange("https://pan.bilnn.com/api/v3/user/session", HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {
+        });
+        System.out.println(reulst.getHeaders());
+        List<String> cookies = reulst.getHeaders().get("Set-Cookie");
+        RedisUtil.set("bilingCookie", JSON.toJSONString(cookies));
+        List<String> cookies2 = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });*/
+
+        //search
+        /*HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });
+        String cookieStr=cookies.stream().collect(Collectors.joining(";"));
+        headers.add("Cookie",cookieStr);
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> reulst = restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/search/keywords%2FMuMu"), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {
+        });
+        System.out.println(reulst.getBody());*/
+
+        //download
+        /*HttpHeaders headers = new HttpHeaders();
+        List<String> cookies = JSON.parseObject(RedisUtil.get("bilingCookie").toString(), new TypeReference<List<String>>() {
+        });
+        String cookieStr=cookies.stream().collect(Collectors.joining(";"));
+        headers.add("Cookie",cookieStr);
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> reulst = restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/download/YqQDdcv"), HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<String>() {
+        });
+        System.out.println(reulst.getBody());*/
+
         return "123";
     }
 

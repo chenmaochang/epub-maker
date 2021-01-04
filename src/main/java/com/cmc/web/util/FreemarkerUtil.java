@@ -17,6 +17,9 @@ public class FreemarkerUtil {
 
     @SneakyThrows
     public static void generateFromTemplate(String templateName, Map dataMap, String outputFileName) {
+        if (FileUtil.exist(outputFileName)) {
+            return;
+        }
         Configuration configuration = new Configuration(new Version(2, 3, 30));
         configuration.setClassForTemplateLoading(FreemarkerUtil.class, "/templates");
         configuration.setTemplateLoader(new ClassTemplateLoader(FreemarkerUtil.class, "/templates"));
