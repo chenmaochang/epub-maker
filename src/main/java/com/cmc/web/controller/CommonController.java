@@ -42,7 +42,8 @@ public class CommonController {
     @SneakyThrows
     @GetMapping("test")
     public String test() {
-        RestTemplateUtil.loginBilnn("chenmaochang@qq.com","chenmaochang");
+        //RestTemplateUtil.loginBilnn("chenmaochang@qq.com","chenmaochang");
+        RestTemplateUtil.searchBilnn("chenmaochang@qq.com","进击的巨人-尤弥赫里结婚吧(P站三话)~第121话（英文试看）-作者：谏山创.epub");
         return "123";
     }
 
