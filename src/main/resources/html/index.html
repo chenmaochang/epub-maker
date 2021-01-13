@@ -13,13 +13,25 @@
         .layui-input {
             padding: 5px 0 5px 10px;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
         }
+
         .layui-input::-webkit-input-placeholder {
-            color:#AFEEEE;
+            color: #AFEEEE;
         }
+
         .layui-btn {
             border-radius: 10px;
+        }
+
+        .layui-progress {
+            background: rgba(255, 255, 255, 0.05);
+            height: 4px;
+        }
+
+        .layui-progress-bar {
+            background: rgba(90, 162, 125, 0.35);
+            height: 4px;
         }
     </style>
 </head>
@@ -29,12 +41,26 @@
         <div class="layui-inline">
             <input class="layui-input" name="bookName" placeholder="请输入书名" autocomplete="off">
         </div>
-        <button class="layui-btn">搜索</button>
+        <button class="layui-btn" onclick="search()">搜索</button>
+        <div style="margin-top: 3px;">
+            <div class="layui-progress" lay-filter="searchProcess">
+                <div class="layui-progress-bar" lay-percent="0%"></div>
+            </div>
+        </div>
     </div>
+
 
 </main>
 <script type="text/javascript" th:inline="javascript">
     /*<![CDATA[*/
+    var element;
+    layui.use('element', function () {
+        element = layui.element;
+    });
+
+    function search() {
+        element.progress('searchProcess', '100%');
+    }
 
     /*]]>*/
 </script>
