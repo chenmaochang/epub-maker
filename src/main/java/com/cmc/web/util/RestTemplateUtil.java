@@ -1,6 +1,9 @@
 package com.cmc.web.util;
 
+import com.cmc.web.dto.response.bilnn.BilnnResponse;
+import com.cmc.web.dto.response.bilnn.SearchResult;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class RestTemplateUtil {
     @Resource
     private RestTemplate restTemplate;
@@ -67,14 +71,18 @@ public class RestTemplateUtil {
     }
 
     @SneakyThrows
-    public static void searchBilnn(String account, String keyword) {
+    public static SearchResult searchBilnn(String account, String keyword) {
         HttpHeaders headers = new HttpHeaders();
         String cookieStr = (String) RedisUtil.get("bilingCookie:" + account);
         headers.add("Cookie", cookieStr);
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-        ResponseEntity<String> reulst = restTemplateUtil.restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/search/keywords%2F" + keyword), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {
+        ResponseEntity<BilnnResponse<SearchResult>> result = restTemplateUtil.restTemplate.exchange(new URI("https://pan.bilnn.com/api/v3/file/search/keywords%2F" + keyword), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<BilnnResponse<SearchResult>>() {
         });
-        System.out.println(reulst.getBody());
+        if(result.getBody().getCode()==0){
+            return result.getBody().getData();
+        }
+        log.error("查询返回失败,{}",result);
+        return null;
     }
 
     public static void uploadBilnn(String account, String filePath) {

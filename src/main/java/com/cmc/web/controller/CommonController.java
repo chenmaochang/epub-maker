@@ -5,6 +5,7 @@ import com.cmc.web.beans.EBook;
 import com.cmc.web.common.AjaxResult;
 import com.cmc.web.config.CloudStorageConfig;
 import com.cmc.web.config.EBookConfig;
+import com.cmc.web.dto.response.bilnn.SearchResult;
 import com.cmc.web.service.EBookGenerator;
 import com.cmc.web.service.ShouManHuaService;
 import com.cmc.web.util.RestTemplateUtil;
@@ -42,7 +43,9 @@ public class CommonController {
     @SneakyThrows
     @GetMapping("test")
     public String test() {
-        RestTemplateUtil.loginBilnn("chenmaochang@qq.com","chenmaochang");
+        //RestTemplateUtil.loginBilnn("chenmaochang@qq.com","chenmaochang");
+        SearchResult searchResult=RestTemplateUtil.searchBilnn("chenmaochang@qq.com","进击的巨人-尤弥赫里结婚吧(P站三话)~第121话（英文试看）-作者：谏山创.epub");
+
         return "123";
     }
 
